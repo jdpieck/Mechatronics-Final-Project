@@ -340,7 +340,7 @@ void setAutomaticMenu() {
   String str1, str2, str3, str4, str5;
   // fill str1~5 to have the Automatic manaul print out correctly
   str1 = "AUTOMATIC MENU";
-  str2 = " SFSDFSDFSDFSDFSDFSDFSFDSFSDFSF";
+  str2 = "";
   str3 = " ";
   str4 = " ";
   str5 = " ";
