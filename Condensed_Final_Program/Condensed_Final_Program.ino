@@ -382,7 +382,7 @@ int getCombination(char *arr) {
   int inputFlag = 1;
 
   while(inputFlag) {
-    Serial.print("\n(2-digit) Combination Input: ");
+    Serial.print("(2-digit) Combination Input: ");
     
     while(!key) {
       key = customKeypad.getKey();
@@ -401,17 +401,18 @@ int getCombination(char *arr) {
     Serial.print(key);
     key = customKeypad.getKey();
     dialPosition = atoi(arr);
+    delay(300);
 
     if (dialPosition >= 0 && dialPosition <= dial_ticks) {
-      Serial.println("\nCombination Number Accepted!"); 
-      Serial.println(); 
+      Serial.println("\nCombination Number Accepted!\n"); 
+      // Serial.println(); 
       inputFlag = 0;
       return dialPosition;
     }
     
     else{
       Serial.print("\nInvalid Input! Input should be from 0-"); Serial.println((int)dial_ticks);
-      Serial.println("Please try again.");
+      Serial.println("Please try again.\n");
     }
   }
 }
@@ -548,45 +549,55 @@ void ModeControl() {
 void AutomaticControl() {
   int combo1 = -1, combo2 = -1, combo3 = -1, task = 0;
   char number[2];
-  char key;
-  String str;
+  // char key;
+  // String str;
 
   while(OperationMode ==2) {
-    switch(task) {
-      // task 0
-      case 0:
-        // prompt to enter the first combination number combo1 and update machine message
-        
-        // switch to task 1
-        task=1;
-        break;
-      // task 1
-      case 1:
-        // wait for input of combo1 with function: getTwoCharDigits(number)
-        
-        // check the number input if correct or not, reject the number over the range
-        // if it over the range, prompt the user to input it again
-        // if it is in the range, prompt to input the second number combo2, go to task 2
+    
+    Serial.println("Please enter the lock combination. ");
+    // delay(10); 
+    // Serial.println("Combination 1");
+    combo1 = getCombination(number);
+    // Serial.println("~~~~ Combination 2 ~~~~");
+    combo2 = getCombination(number);
+    // Serial.println("~~~~ Combination 3 ~~~~");
+    combo3 = getCombination(number);
 
-      case 2:
-        // wait for input of combo2 with function: getTwoCharDigits(number)
+    // switch(task) {
+    //   // task 0
+    //   case 0:
+    //     // prompt to enter the first combination number combo1 and update machine message
         
-        // check the number input if correct or not, reject the number over the range
-        // if it over the range, prompt the user to input it again
-        // if it is in the range, prompt to input the third number combo3, go to task 3
+    //     // switch to task 1
+    //     task=1;
+    //     break;
+    //   // task 1
+    //   case 1:
+    //     // wait for input of combo1 with function: getTwoCharDigits(number)
+        
+    //     // check the number input if correct or not, reject the number over the range
+    //     // if it over the range, prompt the user to input it again
+    //     // if it is in the range, prompt to input the second number combo2, go to task 2
 
-      case 3:
-        // wait for input of combo3 with function: getTwoCharDigits(number)
+    //   case 2:
+    //     // wait for input of combo2 with function: getTwoCharDigits(number)
         
-        // check the number input if correct or not, reject the number over the range
-        // if it over the range, prompt the user to input it again
-        // if it is in the range, go to task 4
+    //     // check the number input if correct or not, reject the number over the range
+    //     // if it over the range, prompt the user to input it again
+    //     // if it is in the range, prompt to input the third number combo3, go to task 3
 
-      case 4:  
-        //unlock stuff
-        //prompt the user to open the padlock by pressing '#'
+    //   case 3:
+    //     // wait for input of combo3 with function: getTwoCharDigits(number)
         
-        // the motor will start moving (lock opening), after the user press '#'
+    //     // check the number input if correct or not, reject the number over the range
+    //     // if it over the range, prompt the user to input it again
+    //     // if it is in the range, go to task 4
+
+    //   case 4:  
+    //     //unlock stuff
+    //     //prompt the user to open the padlock by pressing '#'
+        
+    //     // the motor will start moving (lock opening), after the user press '#'
         
         //Move to first location
         Serial.print("Moving to: "); Serial.println(combo1);
@@ -623,7 +634,7 @@ void AutomaticControl() {
         printHeaderAndMenu();
         OperationMode = 0;
 
-    }
+    // }
   }
 }
 
