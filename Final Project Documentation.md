@@ -33,4 +33,5 @@ Files & media:
 - added startup messages
 - ran into memory leak issue
 	- had to basically restart 
+	- `dialPos = getCombination(numbers);`
 ## [[Gutted Code]]

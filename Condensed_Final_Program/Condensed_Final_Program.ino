@@ -376,58 +376,54 @@ void printHeaderAndMenu() {
 }
 
 // get input digits from the KeyPad
-int getTwoCharDigits(char *arr) {
+int getCombination(char *arr) {
   char key = customKeypad.getKey();
   int dialPosition;
-  while(!key) {
-    key = customKeypad.getKey();
-  }
-  arr[0] = key;
-  // Serial.println(customKey);
-  key = customKeypad.getKey();
-  
-  while(!key) {
-    key = customKeypad.getKey();
-  }
-  // get zero position
-  arr[1] = key;
-  key = customKeypad.getKey();
-  dialPosition = atoi(arr);
+  int inputFlag = 1;
 
-  return dialPosition;
+  while(inputFlag) {
+    Serial.print("\n(2-digit) Combination Input: ");
+    
+    while(!key) {
+      key = customKeypad.getKey();
+    }
+
+    arr[0] = key;
+    Serial.print(key);
+    key = customKeypad.getKey();
+    
+    while(!key) {
+      key = customKeypad.getKey();
+    }
+
+    // get zero position
+    arr[1] = key;
+    Serial.print(key);
+    key = customKeypad.getKey();
+    dialPosition = atoi(arr);
+
+    if (dialPosition >= 0 && dialPosition <= dial_ticks) {
+      Serial.println("\nCombination Number Accepted!"); 
+      Serial.println(); 
+      inputFlag = 0;
+      return dialPosition;
+    }
+    
+    else{
+      Serial.print("\nInvalid Input! Input should be from 0-"); Serial.println((int)dial_ticks);
+      Serial.println("Please try again.");
+    }
+  }
 }
 
 // Machine setup function
 void MachineSetup() {
   char numbers[2];
-  char key;
-  int dialPos, inputFlag;
-  inputFlag = 1;
-  Serial.println("Input a value for the initial dial position");
-  dialPos = getTwoCharDigits(numbers);
-  while(inputFlag) {
-    if (dialPos >= 0 && dialPos <= dial_ticks) {
-      //Set Dial position if it is an appropriate option
-      dial = dialPos;
-      Serial.print("Dial Position Set to "); Serial.println(dial);
-      Serial.println(); 
-      //Give option to leave program or not
-      inputFlag = 0;
-    }
-    else{
-      Serial.print("Invalid Number Input: "); Serial.println(dialPos);
-      Serial.print("Input should be from 0-"); Serial.println(dial_ticks);
-      Serial.print("Input a value for the initial dial position\n");
-      dialPos = getTwoCharDigits(numbers);
-    }
-  }
 
-  //no longer in manual mode
-  // Serial.print("Press # to Exit\n");
-  // key = customKeypad.getKey();
-  // while(key!='#') {
-  //   key = customKeypad.getKey();
-  // };
+  Serial.println("Input the initial dial position.");
+  dial = getCombination(numbers);
+  Serial.print("Dial Position Set to "); Serial.println(dial);
+
   setIdleMenu();
   printHeaderAndMenu();
   OperationMode = 0;
