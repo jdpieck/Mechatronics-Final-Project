@@ -254,11 +254,10 @@ void drivePulses(int distInPulses) {
 }
 // parameter is the distance in ticks we want the motor to drive to
 void driveTicks(float ticks) {
-  Serial.print("driveTicks Triggered - Number of Ticks: ");
-  Serial.println(ticks);
+  // Serial.print("DEBUG: driveTicks Triggered - Number of Ticks: "); Serial.println(ticks);
   int pulses = dialDistanceToPulses(ticks);
   drivePulses(pulses);
-  Serial.println("driveTicks Complete!");
+  // Serial.println("DEBUG: driveTicks Complete!");
 }
 
 /* move CCW to a dial position */
@@ -361,17 +360,18 @@ void setSetupMenu() {
 }
 
 void printHeaderAndMenu() {
-  Serial.println("\nEME-154 Mechatronics");
-  Serial.println("Free Time System");
+  char spacer[41] = "****************************************";
+  Serial.println("\nEME-154 Mechatronics    Free Time System");
   Serial.println("Jason Daniel Pieck");
-  Serial.println("****************************************");
+  Serial.println(spacer);
   Serial.print("            "); 
   Serial.println(menuTitle);
-  Serial.println("****************************************");
+  Serial.println(spacer);
   Serial.println(action1);
   Serial.println(action2);
   Serial.println(action3);
   Serial.println(action4);
+  Serial.println(spacer);
   // delay(10); // wait for printing
 }
 
@@ -431,24 +431,24 @@ void MachineSetup() {
 }
 
 // Mode print functions
-char ModePrint() {
-  switch (OperationMode) {
-    case 1:
-      Serial.println("Manual");
-      break;
-    case 2:
-      Serial.println("Automatic");
-      break;
-    case 3:
-      Serial.println("Machine Setup");
-      break;
-    case 5:
-      Serial.println("System Turned Off");
-      break;
-    default:
-      Serial.println("Idle Mode");
-  }
-}
+// char ModePrint() {
+//   switch (OperationMode) {
+//     case 1:
+//       Serial.println("Manual");
+//       break;
+//     case 2:
+//       Serial.println("Automatic");
+//       break;
+//     case 3:
+//       Serial.println("Machine Setup");
+//       break;
+//     case 5:
+//       Serial.println("System Turned Off");
+//       break;
+//     default:
+//       Serial.println("Idle Mode");
+//   }
+// }
 
 // Output Control Supervisor
 void OutputControl() {
@@ -461,8 +461,8 @@ void OutputControl() {
   else if (lastOperationMode != OperationMode) {
     lastOperationMode = OperationMode;
     Serial.println(machineMessage);
-    Serial.print("Current Mode: "); 
-    ModePrint();
+    // Serial.print("Current Mode: "); 
+    // ModePrint();
     Serial.print("Dial Position is at: ");
     Serial.println(dial);
   }
@@ -477,14 +477,13 @@ void MachineStatusScan() {
 
   char selection = customKeypad.getKey(); // get a key from the keypad
   if (selection) {
-    Serial.print("Key Selected: ");
-    Serial.println(selection);
+    // Serial.print("DEBUG: Key Selected: ");    Serial.println(selection);
     
     switch (selection) {
       // manual operation mode
       case '1':
         if (OperationMode == 1) { //in manual mode
-          Serial.println("Manual Mode Active - Selected 1");
+          // Serial.println("DEBGUG: Manual Mode Active - Selected 1");
           ManualOperation(selection);
         }
         else if (OperationMode == 0) {//in idle mode
@@ -498,7 +497,7 @@ void MachineStatusScan() {
       // automatic operation mode 
       case '2': //this key will...
         if (OperationMode == 1) { //in manual mode
-          Serial.println("Manual Mode Active - Selected 2");
+          // Serial.println("DEBGUG: Manual Mode Active - Selected 2");
           ManualOperation(selection);
         }
         else if (OperationMode == 0) {//in idle mode
@@ -511,7 +510,7 @@ void MachineStatusScan() {
         break;
       case '3': //this key will...
         if (OperationMode == 1) { //in manual mode
-          Serial.println("Manual Mode Active - Selected 3");
+          // Serial.println("DEBUG: Manual Mode Active - Selected 3");
           ManualOperation(selection);
         }
         else if (OperationMode == 0) {//in idle mode
@@ -524,7 +523,7 @@ void MachineStatusScan() {
       case '5':
         if (OperationMode == 0) {
           OperationMode = 5;
-          str = "Automatic Mode Accepted";
+          str = "Exit Request Accepted";
           str.toCharArray(machineMessage,25);
         }
         else {
@@ -553,98 +552,57 @@ void AutomaticControl() {
   // String str;
 
   while(OperationMode ==2) {
-    
-    Serial.println("Please enter the lock combination. ");
-    // delay(10); 
-    // Serial.println("Combination 1");
+    Serial.println("Please enter the lock combination.");
+    Serial.println("~~~~ Combination 1 ~~~~");
     combo1 = getCombination(number);
-    // Serial.println("~~~~ Combination 2 ~~~~");
+    Serial.println("~~~~ Combination 2 ~~~~");
     combo2 = getCombination(number);
-    // Serial.println("~~~~ Combination 3 ~~~~");
+    Serial.println("~~~~ Combination 3 ~~~~");
     combo3 = getCombination(number);
-
-    // switch(task) {
-    //   // task 0
-    //   case 0:
-    //     // prompt to enter the first combination number combo1 and update machine message
         
-    //     // switch to task 1
-    //     task=1;
-    //     break;
-    //   // task 1
-    //   case 1:
-    //     // wait for input of combo1 with function: getTwoCharDigits(number)
-        
-    //     // check the number input if correct or not, reject the number over the range
-    //     // if it over the range, prompt the user to input it again
-    //     // if it is in the range, prompt to input the second number combo2, go to task 2
+    //Move to first location
+    Serial.print("Moving to: "); Serial.println(combo1);
+    // move 1 circle CW with function moveCwToDialNO()
 
-    //   case 2:
-    //     // wait for input of combo2 with function: getTwoCharDigits(number)
-        
-    //     // check the number input if correct or not, reject the number over the range
-    //     // if it over the range, prompt the user to input it again
-    //     // if it is in the range, prompt to input the third number combo3, go to task 3
+    delay(1000);
+    // move 1 circle CW with function moveCwToDialNO()
 
-    //   case 3:
-    //     // wait for input of combo3 with function: getTwoCharDigits(number)
-        
-    //     // check the number input if correct or not, reject the number over the range
-    //     // if it over the range, prompt the user to input it again
-    //     // if it is in the range, go to task 4
+    delay(1000);
+    // move to the 1st number CW with function moveCwToDialNO()
 
-    //   case 4:  
-    //     //unlock stuff
-    //     //prompt the user to open the padlock by pressing '#'
-        
-    //     // the motor will start moving (lock opening), after the user press '#'
-        
-        //Move to first location
-        Serial.print("Moving to: "); Serial.println(combo1);
-        // move 1 circle CW with function moveCwToDialNO()
+    
+    //Move to second number
+    Serial.print("Moving to: "); Serial.println(combo2);
+    // move 1 circle CCW with function moveCcwToDialNO()
+    delay(1000);
+    // move to the 2nd number CCW with function moveCcwToDialNO()
+    
 
-        delay(1000);
-        // move 1 circle CW with function moveCwToDialNO()
+    // Move to third number
+    Serial.print("Moving to: "); Serial.println(combo3);
+    
+    // move to the 3rd number CW with function moveCwToDialNO()
 
-        delay(1000);
-        // move to the 1st number CW with function moveCwToDialNO()
+    //pop the lock with the solenoid connected to port 1
+    Serial.println("You can pull the shackle now!");
 
-        
-        //Move to second number
-        Serial.print("Moving to: "); Serial.println(combo2);
-        // move 1 circle CCW with function moveCcwToDialNO()
-        delay(1000);
-        // move to the 2nd number CCW with function moveCcwToDialNO()
-        
+    // update machine message
+    
+    // prompt the user to input '#' to go back the main menu
 
-        // Move to third number
-        Serial.print("Moving to: "); Serial.println(combo3);
-        
-        // move to the 3rd number CW with function moveCwToDialNO()
-
-        //pop the lock with the solenoid connected to port 1
-        Serial.println("You can pull the shackle now!");
-
-        // update machine message
-        
-        // prompt the user to input '#' to go back the main menu
-
-        // go back to the idle mode
-        setIdleMenu();
-        printHeaderAndMenu();
-        OperationMode = 0;
-
-    // }
+    // go back to the idle mode
+    setIdleMenu();
+    printHeaderAndMenu();
+    OperationMode = 0;
   }
 }
 
 // MOS: Manual Operation Supervisor
 void ManualOperation(char selection) {
-  // Serial.println("Manual Operation Function Called");
+  // Serial.println("DEBUG: Manual Operation Function Called");
   String str;
   if (selection) {
-    Serial.print("Manual Mode Input: ");
-    Serial.println(selection);
+    // Serial.print("DEBUG: Manual Mode Input: "); Serial.println(selection);
 
     str = "Manual Idle Mode";
     str.toCharArray(machineMessage,25);
@@ -652,24 +610,23 @@ void ManualOperation(char selection) {
       case '1': 
         str = "Manual Active Mode";
         str.toCharArray(machineMessage,25);
-        Serial.println("Moving 1 Tick CW");
+        Serial.println("\nMoving 1 Tick CW");
         driveTicks(1); //move 1 tick CW decrease
         dial++;
         if (dial == dial_ticks) dial = 0;
-        Serial.print("CW - Dial Position is at: ");
-        Serial.println(dial);
         break;
-      
-      case '2': 
+        
+        case '2': 
         str = "Manual Active Mode";
         str.toCharArray(machineMessage,25);
+        Serial.println("\nMoving 1 Tick CWW");
         driveTicks(-1); //zero is CCW
         dial--;
-        Serial.print("CCW - Dial Position is at: ");
-        Serial.println(dial);
         if (dial ==-1) dial = dial_ticks-1;
         break;
-    }
+      }
+      Serial.print("Dial Position is at: ");
+      Serial.println(dial);
   }
 }
 
