@@ -1,6 +1,5 @@
 #include <Keypad.h>
 #include <math.h>
-// #include <Arduino.h> F F
 
 #define CLOCK_FREQUENCY 16000000
 #define SERIAL_BAUDRATE 57600
@@ -13,7 +12,7 @@
 #define BRAKE 8
 #define MAX_PWM 255
 #define MIN_PWM 55 // this one depends on the dead zone of the motor input voltage
-#define PPR 1100   // 1080 is ideally, but there may exists some offset from your observation and sensor noise 
+#define PPR 800   // 1080 is ideally, but there may exists some offset from your observation and sensor noise 
 
 // interpolated P-control
 #define KP 0.3 //0.12  // P control parameter
@@ -102,12 +101,10 @@ void resetMotorControl(int pulses) {
 
 // convert delta dial distance to pulses
 int dialDistanceToPulses(int deltaDials) {
-  // Serial.print("dialDistanceToPulses Triggered - deltaDails: ");
-  // Serial.println(deltaDials);
+  // Serial.print("DEBUG: dialDistanceToPulses Triggered - deltaDails: "); // Serial.println(deltaDials);
   int delta_pulses;
   delta_pulses = deltaDials/dial_ticks*PPR;
-  // Serial.print("delta_pulses: ");
-  // Serial.println(delta_pulses);
+  // Serial.print("DEBUG: delta_pulses: ");   // Serial.println(delta_pulses);
   return delta_pulses;
 }
 
@@ -237,12 +234,9 @@ void drivePulses(int distInPulses) {
   resetMotorControl(distInPulses);
   while(1) {
 
-    // Serial.print("distInPulses: ");
-    // Serial.println(distInPulses);
-    // Serial.print("PWM_value: ");
-    // Serial.println(PWM_value);
-    // Serial.print("encoderPos: ");
-    // Serial.println(encoderPos);
+    // Serial.print("DEBUG: distInPulses: "); Serial.println(distInPulses);
+    // Serial.print("DEBUG: PWM_value: "); Serial.println(PWM_value);
+    // Serial.print("DEBUG: encoderPos: "); Serial.println(encoderPos);
       
     if (PWM_value > 0) {
       setMotorCCW();
@@ -292,14 +286,13 @@ void InitializeSupervisor() {
   lastMachineStatus = 0;
   errorFlag = false;
   runFlag = true;
-  Serial.println("══════System Sucessfully Initialized!══════");
-  Serial.println("");
 }
 
-// Digonosis function
+// Diagnosis function
 int DiagnosticsSupervisor() {
   // put the diagnostics program here
   if (errorFlag) {
+    Serial.println("Error Detected!!");
     return 0; // for error
   } else {
     return 1; // successful diagnostics
@@ -335,12 +328,13 @@ void setManualMenu() {
   str4.toCharArray(action3, 25);
   str5.toCharArray(action4, 25);
 }
+
 // set Automatic menu
 void setAutomaticMenu() {
   String str1, str2, str3, str4, str5;
-  // fill str1~5 to have the Automatic manaul print out correctly
+  // fill str1~5 to have the Automatic manual print out correctly
   str1 = "AUTOMATIC MENU";
-  str2 = "";
+  str2 = " ";
   str3 = " ";
   str4 = " ";
   str5 = " ";
@@ -350,6 +344,7 @@ void setAutomaticMenu() {
   str4.toCharArray(action3, 25);
   str5.toCharArray(action4, 25);
 }
+
 // set Machine setup menu
 void setSetupMenu() {
   String str1, str2, str3, str4, str5;
@@ -363,6 +358,21 @@ void setSetupMenu() {
   str3.toCharArray(action2, 25);
   str4.toCharArray(action3, 25);
   str5.toCharArray(action4, 25);
+}
+
+void printHeaderAndMenu() {
+  Serial.println("\nEME-154 Mechatronics");
+  Serial.println("Free Time System");
+  Serial.println("Jason Daniel Pieck");
+  Serial.println("****************************************");
+  Serial.print("            "); 
+  Serial.println(menuTitle);
+  Serial.println("****************************************");
+  Serial.println(action1);
+  Serial.println(action2);
+  Serial.println(action3);
+  Serial.println(action4);
+  // delay(10); // wait for printing
 }
 
 // get input digits from the KeyPad
@@ -440,7 +450,7 @@ char ModePrint() {
       break;
     default:
       Serial.println("Idle Mode");
-    }
+  }
 }
 
 // Output Control Supervisor
@@ -656,19 +666,6 @@ void ManualOperation(char selection) {
   }
 }
 
-void printHeaderAndMenu() {
-  Serial.println("EME-154 Mechatronics");
-  Serial.println("Free Time System");
-  Serial.println("Jason Daniel Pieck");
-  Serial.println("****************************************");
-  Serial.print("            ");Serial.println(menuTitle);
-  Serial.println("****************************************");
-  Serial.println(action1);
-  Serial.println(action2);
-  Serial.println(action3);
-  Serial.println(action4);
-  // delay(10); // wait for printing
-}
 // ERT
 void ErrorTreatment() {
   // take actions here to treat detected errors
@@ -677,7 +674,7 @@ void ErrorTreatment() {
 void setup() {
   Serial.begin(SERIAL_BAUDRATE);
   Serial.println("");
-  Serial.println("═════════System Startup Initialized════════");
+  Serial.println("══════ System Startup Initialized ══════");
 
   // pin mode for encoder A, B
   pinMode(ENCODER_A, INPUT);
@@ -696,6 +693,8 @@ void setup() {
 
   // Initialization of FTS
   InitializeSupervisor();
+  Serial.println("═══ System Successfully Initialized! ═══");
+  Serial.println("");
 }
 
 void loop() {
@@ -712,7 +711,9 @@ void loop() {
   }
   // if press the button 5, stop the system
   if (OperationMode == 5) {
-    Serial.println("System Exit!!");
+    Serial.println("\n═════════════ System Exit ══════════════");
     while(1);
   }
 } 
+
+
