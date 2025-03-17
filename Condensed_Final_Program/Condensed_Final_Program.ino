@@ -11,13 +11,13 @@
 #define DIR 13
 #define BRAKE 8
 #define MAX_PWM 255
-#define MIN_PWM 55  // this one depends on the dead zone of the motor input voltage
-#define PPR 800     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
+#define MIN_PWM 52  // this one depends on the dead zone of the motor input voltage
+#define PPR 1050     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
 
 // interpolated P-control
-#define KP 0.1          //0.12  // P control parameter
-#define TARGET_DIST 50  // pulses
-#define DIS2GO 10
+#define KP 0.4         //0.12  // P control parameter
+#define TARGET_DIST 100  // pulses
+#define DIS2GO 5
 
 int dist_moved = 0;
 int controlLoopRate = 95;

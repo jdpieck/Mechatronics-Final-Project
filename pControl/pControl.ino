@@ -15,7 +15,7 @@
 #define PPR 1050
 
 // interpolated P-control
-#define KP 0.12          // P control parameter
+#define KP 0.4          // P control parameter
 #define TARGET_DIST 100  // pulses
 #define DIS2GO 5
 int dist_moved = 0;
