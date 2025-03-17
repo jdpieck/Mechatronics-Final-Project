@@ -12,15 +12,15 @@
 #define MAX_PWM 255
 #define MIN_PWM 52  // this one depends on the dead zone of the motor input voltage
 // 1080 is ideally, but there may exists some offset from your observation and sensor noise
-#define PPR 1045
+#define PPR 988
 
 // interpolated P-control
-#define KP 0.4         // P control parameter
-#define KI 0.02 // Integral control parameter (adjust as needed)
-#define TARGET_DIST 100  // pulses
-#define DIS2GO 5
+#define KP 0.2         // P control parameter
+#define KI 0.06 // Integral control parameter (adjust as needed)
+#define TARGET_DIST 25  // pulses
+#define DIS2GO 4
 int dist_moved = 0;
-int controlLoopRate = 95;
+int controlLoopRate = 300;
 
 // dial padlock resolution
 const float dial_ticks = 60;
@@ -207,33 +207,76 @@ int dialDistanceToPulses(int deltaDials) {
   return delta_pulses;
 }
 
-// ISR of timer
+// // ISR of timer
+// ISR(TIMER1_COMPA_vect) {
+//   // calculate the position error
+//   if (abs(distanceToGo - encoderPos) < TARGET_DIST) {
+//   // Serial.print("distanceToGo - encoderPos: "); Serial.println(distanceToGo - encoderPos);
+//     positionError = distanceToGo - encoderPos;
+//   // positionError = set_distance - encoderPos;
+//   } else {
+//     dist_moved = encoderPos - lastEncoderPos;
+//     if (distanceToGo > 0) {
+//       positionError += DIS2GO - dist_moved;
+//     } else {
+//       positionError += -DIS2GO - dist_moved;
+//     }
+//   }
+//   // Compute integral term
+//   integralError += positionError; // Accumulate error over time
+
+//   // Prevent integral windup
+//   if (integralError > integralLimit) integralError = integralLimit;
+//   if (integralError < -integralLimit) integralError = -integralLimit;
+
+//   // Compute control output (PI controller)
+//   // PWM_value = (int)(KP * (float)positionError);
+//   PWM_value = (int)(KP * (float)positionError + KI * integralError);
+//   // update the last_encoder reading
+//   lastEncoderPos = encoderPos;
+// }
+
 ISR(TIMER1_COMPA_vect) {
-  // calculate the position error
-  if (abs(distanceToGo - encoderPos) < TARGET_DIST) {
-    positionError = distanceToGo - encoderPos;
-  }
-  // positionError = set_distance - encoderPos;
-  else {
-    dist_moved = encoderPos - lastEncoderPos;
-    if (distanceToGo > 0) {
-      positionError += DIS2GO - dist_moved;
+  // Calculate position error
+  positionError = distanceToGo - encoderPos;
+
+  // Stop the motor if within acceptable range
+  if (abs(positionError) < TARGET_DIST) {
+    PWM_value = 0;  // Stop motor
+    integralError = 0; // Reset integral term to avoid windup
+  } else {
+    // Compute integral term
+    integralError += positionError;
+
+    // Prevent integral windup
+    if (integralError > integralLimit) integralError = integralLimit;
+    if (integralError < -integralLimit) integralError = -integralLimit;
+    
+    // Optional: Add decay to integral term
+    integralError *= 0.99;
+
+    // Compute control output (PI controller)
+    int targetPWM = (int)(KP * (float)positionError + KI * integralError);
+
+    // Gradually increase PWM instead of jumping to max
+    if (abs(targetPWM) > abs(PWM_value) + DIS2GO) { // Increase gradually by 5 per cycle
+      if (targetPWM > PWM_value) PWM_value += DIS2GO;
+      else PWM_value -= DIS2GO;
     } else {
-      positionError += -DIS2GO - dist_moved;
+      PWM_value = targetPWM; // If within range, set directly
     }
+
+    // Constrain PWM to valid range
+    if (PWM_value > 255) PWM_value = 255;
+    if (PWM_value < -255) PWM_value = -255;
   }
-  // Compute integral term
-  integralError += positionError; // Accumulate error over time
 
-  // Prevent integral windup
-  if (integralError > integralLimit) integralError = integralLimit;
-  if (integralError < -integralLimit) integralError = -integralLimit;
-
-  // Compute control output (PI controller)
-  PWM_value = (int)(KP * (float)positionError + KI * integralError);
-  // update the last_encoder reading
+  // Update last encoder reading
   lastEncoderPos = encoderPos;
 }
+
+
+
 
 void setup() {
   Serial.begin(SERIAL_BAUDRATE);
@@ -285,7 +328,7 @@ void drivePulses(int distInPulses) {
 
 void loop() {
   // machine setup
-  Serial.print("Please input the first digit: ");
+  Serial.print("\nPlease input the first digit: ");
   while (!customKey) {
     customKey = customKeypad.getKey();
   }
@@ -311,6 +354,19 @@ void loop() {
   int pulse_dist = dialDistanceToPulses(dial_ticks - initialPosition);
   // P-control
   drivePulses(pulse_dist);
-  delay(1000);  // it is essential for controller reseting
+  delay(500);  // it is essential for controller reseting
+  drivePulses(-PPR/4);
+  delay(500);  // it is essential for controller reseting
+  drivePulses(-PPR/4);
+  delay(500);  // it is essential for controller reseting
+  drivePulses(-PPR/4);
+  delay(500);  // it is essential for controller reseting
+  drivePulses(-PPR/4);
+  delay(500);  // it is essential for controller reseting
   drivePulses(-PPR);
+  delay(500);  // it is essential for controller reseting
+  drivePulses(-PPR);
+  // delay(500);  // it is essential for controller reseting
+  // drivePulses(PPR/2);
+  // delay(500);  // it is essential for controller reseting
 }

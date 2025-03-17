@@ -15,13 +15,13 @@
 #define PPR 1045     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
 
 // interpolated P-control
-#define KP 0.4         //0.12  // P control parameter
-#define KI 0.01 // Integral control parameter (adjust as needed)
+#define KP 0.2         //0.12  // P control parameter
+#define KI 0.04 // Integral control parameter (adjust as needed)
 #define TARGET_DIST 100  // pulses
-#define DIS2GO 5
+#define DIS2GO 3
 
 int dist_moved = 0;
-int controlLoopRate = 95;
+int controlLoopRate = 150;
 int distanceToGo;
 int positionError = 0;
 int PWM_value;
