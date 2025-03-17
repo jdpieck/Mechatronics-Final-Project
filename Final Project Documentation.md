@@ -34,5 +34,15 @@ Files & media:
 - ran into memory leak issue
 	- had to basically restart 
 	- `dialPos = getCombination(numbers);`
+## Thinking
+- from 10 to 30
+	- CW = 30 - 10 = 20
+	- CWW = 10 - 30 = -20 
+- from 5 to 10
+	- CW = 10 - 5 = 5
+	- CWW = 5 - 10 + 40 = 35
+- from 15 to 10
+	- CW = 10 - 15 + 40 = 35
+	- CWW = 15 - 10 = 5
 ## [[Gutted Code]]
 ## [[Debug Messages]]

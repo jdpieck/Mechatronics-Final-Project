@@ -101,10 +101,9 @@ void resetMotorControl(int pulses) {
 
 // convert delta dial distance to pulses
 int dialDistanceToPulses(int deltaDials) {
-  // Serial.print("DEBUG: dialDistanceToPulses Triggered - deltaDails: "); // Serial.println(deltaDials);
-  int delta_pulses;
-  delta_pulses = deltaDials/dial_ticks*PPR;
-  // Serial.print("DEBUG: delta_pulses: ");   // Serial.println(delta_pulses);
+  // Serial.print("DEBUG: dialDistanceToPulses Triggered - deltaDails: "); Serial.println(deltaDials);
+  int delta_pulses = deltaDials/dial_ticks*PPR;
+  // Serial.print("DEBUG: delta_pulses: "); Serial.println(delta_pulses);
   return delta_pulses;
 }
 
@@ -252,20 +251,47 @@ void drivePulses(int distInPulses) {
     }
   }
 }
+
 // parameter is the distance in ticks we want the motor to drive to
 void driveTicks(float ticks) {
-  // Serial.print("DEBUG: driveTicks Triggered - Number of Ticks: "); Serial.println(ticks);
   int pulses = dialDistanceToPulses(ticks);
   drivePulses(pulses);
-  // Serial.println("DEBUG: driveTicks Complete!");
+  dial = dial + ticks; 
+  if (dial >= dial_ticks) {
+    dial = dial - dial_ticks;
+  } else if (dial < 0) {
+    dial = dial + dial_ticks;
+  }
 }
+
+// int correctDistance(int distance) {
+//   if (distance < 0) {
+//     // Serial.println("Wrapping Value");
+//     return distance + dial_ticks;
+//   } else if (distance == 0) {
+//     return dial_ticks;
+//   } else {
+//     return distance;
+//   }
+// }
 
 /* move CCW to a dial position */
 // input: dial position combo it will go to;
 // output: the motor will rotate to that number CCW;
 // calculate the incremental ticks it needs to go and use function 'driveTicks(ticks)' to implement
 void moveCcwToDialNO(int combo)  {
+  int ticksToMove = combo - dial; 
+  
+  if (ticksToMove > 0) {
+    // Serial.println("Wrapping Value");
+    ticksToMove = ticksToMove - dial_ticks;
+  } else if (ticksToMove == 0) {
+    ticksToMove = -1*dial_ticks;
+  } 
 
+  // Serial.print("DEBUG: Current Location: "); Serial.println(dial);
+  // Serial.print("DEBUG: Distance to Go: "); Serial.println(ticksToMove);
+  driveTicks(ticksToMove);
 }
 
 /* move CW to a dial position */
@@ -273,7 +299,19 @@ void moveCcwToDialNO(int combo)  {
 // output: the motor will rotate to that number CW;
 // calculate the incremental ticks it needs to go and use function 'driveTicks(ticks)' to implement
 void moveCwToDialNO(int combo)  {
-
+  int ticksToMove = combo - dial;
+  
+  if (ticksToMove < 0) {
+    // Serial.println("Wrapping Value");
+    ticksToMove = ticksToMove + dial_ticks;
+  } else if (ticksToMove == 0) {
+    ticksToMove = dial_ticks;
+  } 
+  
+  // Serial.print("DEBUG: Current Location: "); Serial.println(dial);
+  // Serial.print("DEBUG: Distance to Go: "); Serial.println(ticksToMove);
+  driveTicks(ticksToMove);
+  
 }
 
 /* Functions of Free Time System  */ 
@@ -412,7 +450,8 @@ int getCombination(char *arr) {
     
     else{
       Serial.print("\nInvalid Input! Input should be from 0-"); Serial.println((int)dial_ticks);
-      Serial.println("Please try again.\n");
+      Serial.println();
+      // Serial.println("Please try again.\n");
     }
   }
 }
@@ -561,30 +600,38 @@ void AutomaticControl() {
     combo3 = getCombination(number);
         
     //Move to first location
-    Serial.print("Moving to: "); Serial.println(combo1);
-    // move 1 circle CW with function moveCwToDialNO()
+    Serial.print("\nMoving to: "); Serial.println(combo1);
+    // move 1 circle CW with moveCwToDialNO()
+    moveCwToDialNO(dial);
+    delay(500);
 
-    delay(1000);
     // move 1 circle CW with function moveCwToDialNO()
-
-    delay(1000);
+    moveCwToDialNO(dial);
+    delay(500);
+    
     // move to the 1st number CW with function moveCwToDialNO()
-
+    moveCwToDialNO(combo1);
+    delay(500);
     
     //Move to second number
-    Serial.print("Moving to: "); Serial.println(combo2);
+    Serial.print("\nMoving to: "); Serial.println(combo2);
     // move 1 circle CCW with function moveCcwToDialNO()
-    delay(1000);
+    moveCcwToDialNO(dial);
+    delay(500);
     // move to the 2nd number CCW with function moveCcwToDialNO()
+    moveCcwToDialNO(combo2);
+    delay(500);
     
-
+    
     // Move to third number
-    Serial.print("Moving to: "); Serial.println(combo3);
+    Serial.print("\nMoving to: "); Serial.println(combo3);
     
     // move to the 3rd number CW with function moveCwToDialNO()
+    moveCwToDialNO(combo3);
+    delay(500);
 
     //pop the lock with the solenoid connected to port 1
-    Serial.println("You can pull the shackle now!");
+    Serial.println("\nYou can pull the shackle now!");
 
     // update machine message
     
@@ -612,17 +659,17 @@ void ManualOperation(char selection) {
         str.toCharArray(machineMessage,25);
         Serial.println("\nMoving 1 Tick CW");
         driveTicks(1); //move 1 tick CW decrease
-        dial++;
-        if (dial == dial_ticks) dial = 0;
+        // dial++;
+        // if (dial == dial_ticks) dial = 0;
         break;
         
-        case '2': 
+      case '2': 
         str = "Manual Active Mode";
         str.toCharArray(machineMessage,25);
         Serial.println("\nMoving 1 Tick CWW");
         driveTicks(-1); //zero is CCW
-        dial--;
-        if (dial ==-1) dial = dial_ticks-1;
+        // dial--;
+        // if (dial ==-1) dial = dial_ticks-1;
         break;
       }
       Serial.print("Dial Position is at: ");
