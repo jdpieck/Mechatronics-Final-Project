@@ -12,10 +12,11 @@
 #define BRAKE 8
 #define MAX_PWM 255
 #define MIN_PWM 52  // this one depends on the dead zone of the motor input voltage
-#define PPR 1050     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
+#define PPR 1045     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
 
 // interpolated P-control
 #define KP 0.4         //0.12  // P control parameter
+#define KI 0.01 // Integral control parameter (adjust as needed)
 #define TARGET_DIST 100  // pulses
 #define DIS2GO 5
 
@@ -24,6 +25,8 @@ int controlLoopRate = 95;
 int distanceToGo;
 int positionError = 0;
 int PWM_value;
+float integralError = 0; // Accumulator for integral term
+float integralLimit = 1000; // Limit to prevent integral windup
 
 const float dial_ticks = 40;  // dial padlock resolution
 
@@ -225,8 +228,14 @@ ISR(TIMER1_COMPA_vect) {
       positionError += -DIS2GO - dist_moved;
     }
   }
-  // positionError = distanceToGo - encoderPos;
-  PWM_value = (int)(KP * (float)positionError);
+  integralError += positionError; // Accumulate error over time
+
+  // Prevent integral windup
+  if (integralError > integralLimit) integralError = integralLimit;
+  if (integralError < -integralLimit) integralError = -integralLimit;
+
+  // Compute control output (PI controller)
+  PWM_value = (int)(KP * (float)positionError + KI * integralError);
   // update the last_encoder reading
   lastEncoderPos = encoderPos;
 }
