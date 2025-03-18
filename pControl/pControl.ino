@@ -12,7 +12,7 @@
 #define MAX_PWM 255
 #define MIN_PWM 52  // this one depends on the dead zone of the motor input voltage
 // 1080 is ideally, but there may exists some offset from your observation and sensor noise
-#define PPR 988
+#define PPR 1080
 
 // interpolated P-control
 #define KP 0.2         // P control parameter
@@ -20,7 +20,7 @@
 #define TARGET_DIST 25  // pulses
 #define DIS2GO 4
 int dist_moved = 0;
-int controlLoopRate = 300;
+int controlLoopRate = 150;
 
 // dial padlock resolution
 const float dial_ticks = 60;
@@ -267,8 +267,9 @@ ISR(TIMER1_COMPA_vect) {
     }
 
     // Constrain PWM to valid range
-    if (PWM_value > 255) PWM_value = 255;
-    if (PWM_value < -255) PWM_value = -255;
+    if (PWM_value > MAX_PWM) PWM_value = 255;
+    if (PWM_value < -MAX_PWM) PWM_value = -255;
+    // if (PWM_value < MIN_PWM && PWM_value > -MIN_PWM) PWM_value = 0;
   }
 
   // Update last encoder reading
