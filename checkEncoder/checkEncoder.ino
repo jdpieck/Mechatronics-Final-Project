@@ -11,6 +11,8 @@ const byte COLS = 4; //four columns
 #define BRAKE 8
 #define DIR 13
 
+#define speed 200
+
 // direction sensing flags
 volatile byte AfirstUp = 0; 
 volatile byte BfirstUp = 0; 
@@ -129,19 +131,32 @@ void loop(){
     // set CW
     Serial.println("CW");
     setMotorCW();
-    driveMotor(55);
+    driveMotor(speed);
   }
   if (customKey=='B'){
     // set CW
     Serial.println("CCW");
     setMotorCCW();
-    driveMotor(55);
+    driveMotor(speed);
   }
   if (customKey=='C'){
     // stop the motor
     stopMotor();
     Serial.println("Stop");
   }
+  if (customKey=='1') {
+    Serial.println("Burst!");
+    driveMotor(55);
+    delay(200);
+    stopMotor();
+  }
+  if (customKey=='2') {
+    Serial.println("Burst!");
+    driveMotor(-55);
+    delay(200);
+    stopMotor();
+  }
+
   // print out encoder position
   if(encoderPos!=oldEncPos){
     Serial.print("Encoder position: ");Serial.println(encoderPos);
