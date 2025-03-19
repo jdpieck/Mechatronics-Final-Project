@@ -12,7 +12,7 @@
 #define MAX_PWM 255
 #define MIN_PWM 52  // this one depends on the dead zone of the motor input voltage
 // 1080 is ideally, but there may exists some offset from your observation and sensor noise
-#define PPR 1080
+#define PPR 1074
 
 // interpolated P-control
 #define KP 0.1         // P control parameter
@@ -436,9 +436,17 @@ void loop() {
   delay(500);  // it is essential for controller reseting
   drivePulses(-PPR/4);
   delay(500);  // it is essential for controller reseting
-  drivePulses(-PPR);
+  drivePulses(PPR/16);
   delay(500);  // it is essential for controller reseting
-  drivePulses(-PPR);
+  drivePulses(PPR/16);
+  delay(500);  // it is essential for controller reseting
+  drivePulses(-PPR/16);
+  delay(500);  // it is essential for controller reseting
+  drivePulses(-PPR/16);
+  delay(500);  // it is essential for controller reseting
+  // drivePulses(-PPR*2);
+  // delay(500);  // it is essential for controller reseting
+  // drivePulses(PPR);
   // delay(500);  // it is essential for controller reseting
   // drivePulses(PPR/2);
   // delay(500);  // it is essential for controller reseting
