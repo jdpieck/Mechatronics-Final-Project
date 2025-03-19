@@ -1,109 +1,135 @@
-  #let project(
-    title: "", 
-    class: "", 
-    authors: "", 
-    emails: "", 
-    page-height: auto, 
-    page-width: 8.5in, 
-    accent: rgb("#063e7e"),
-    body
-  ) = {
-    
-    // Set the document's basic properties.
-    set document(
-      author: authors, 
-      title: [#title - #class]
-    )
-    
-    show link: it => underline(text(blue, it))
-    set text(font: "IBM Plex Sans", lang: "en")
-    
-    show heading.where(level: 1): set text(fill: accent)
-    show heading.where(level: 2): set text(fill: luma(20%))
-    show heading.where(level: 3): set text(fill: luma(25%))
-
-    show heading.where(level: 1): it => context{
-      if counter(heading).get() != (0, ) {pagebreak()}
-      block(it)
-    }
-
-    // show heading.where(level: 2): it => context{
-      
-    //   if counter(heading).get() != (1, 1) {line(length: 100%, stroke: .25pt)}
-    //   v(.2em)
-    //   // block(it)
-    //   box(it)
-    // }
-    show figure.caption: set text(.9em, fill: accent)
-    show figure.caption.where(body: []): it => it.supplement + [ ] + context it.counter.display()
+#let project(
+  title: "", 
+  class: "", 
+  authors: "", 
+  emails: "", 
+  page-height: auto, 
+  page-width: 8.5in, 
+  accent: rgb("#063e7e"),
+  body
+) = {
   
-    set footnote(numbering: "*")
+  // Set the document's basic properties.
+  set document(
+    author: authors, 
+    title: [#title - #class]
+  )
+  
+  show link: it => underline(text(blue, it))
+  set text(font: "IBM Plex Sans", lang: "en")
+  
+  show heading.where(level: 1): set text(fill: accent)
+  show heading.where(level: 2): set text(fill: luma(20%))
+  show heading.where(level: 3): set text(fill: luma(25%))
+
+  show heading.where(level: 1): it => context{
+    if counter(heading).get() != (0, ) {pagebreak()}
+    block(it)
+  }
+
+  // show heading.where(level: 2): it => context{
     
-    // show bibliography: set heading(numbering: "1)")
-    // show bibliography: set par(justify: false)
+  //   if counter(heading).get() != (1, 1) {line(length: 100%, stroke: .25pt)}
+  //   v(.2em)
+  //   // block(it)
+  //   box(it)
+  // }
+  show figure.caption: set text(.9em, fill: accent)
+  show figure.caption.where(body: []): it => it.supplement + [ ] + context it.counter.display()
 
-    show image: it => box(radius: .3em, clip: true, it)
+  set footnote(numbering: "*")
+  
+  // show bibliography: set heading(numbering: "1)")
+  // show bibliography: set par(justify: false)
 
-    set grid(column-gutter: 1em, )
+  show image: it => box(radius: .3em, clip: true, it)
 
-    show table: set par(justify: false) 
-    show table: set align(left)
-    show table.cell.where(y: 0): set text(white, weight: "bold")
-    // show table.cell.where(y: 1): set table.cell(fill: blue)
-    set table(
-      fill: (x,y) =>
-        if y == 0 {accent},
-      // stroke: frame(none),
-      // stroke: (x,y) => (
-      //   left: if x == 1 {gray}
-      //   )
-    )
-    show table.cell.where(x: 0): set align(center)    
+  set grid(column-gutter: 1em, )
 
-    // set math.equation(numbering: "(1)")
-    show rect: set align(center)
-    set par(justify: true)
+  show table: set par(justify: false) 
+  show table: set align(left)
+  show table.cell.where(y: 0): set text(white, weight: "bold")
+  // show table.cell.where(y: 1): set table.cell(fill: blue)
+  set table(
+    fill: (x,y) =>
+      if y == 0 {accent},
+    // stroke: frame(none),
+    // stroke: (x,y) => (
+    //   left: if x == 1 {gray}
+    //   )
+  )
+  show table.cell.where(x: 0): set align(center)    
 
-    set enum(indent: .5em)
-    set list(indent: 1em)
+  // set math.equation(numbering: "(1)")
+  show rect: set align(center)
+  set par(justify: true)
 
-    set raw(lang: "MATLAB")
-    // Display inline code 
-    show raw.where(block: false): box.with(
-      fill: luma(240),
-      inset: (x: 3pt, y: 0pt),
-      outset: (y: 3pt),
-      radius: 2pt,
-    )
-    
-    // Display block code
-    show raw.where(block: true): block.with(
-      fill: luma(96%),
+  set enum(indent: .5em)
+  set list(indent: 1em)
+
+  // set raw(lang: "MATLAB")
+  // Display inline code 
+  show raw.where(block: false): box.with(
+    fill: luma(240),
+    inset: (x: 3pt, y: 0pt),
+    outset: (y: 3pt),
+    radius: 2pt,
+  )
+  
+  show raw.where(block: true): set text(.96em)
+  // Display block code
+  show raw.where(block: true, lang: "cpp"): block.with(
+    fill: luma(96%),
+    inset: 10pt,
+    radius: 4pt,
+  )
+
+  show raw.where(lang: "serial", block: true): it => {
+    set text(fill: white)
+    block(
+      fill: rgb("#1F272A"),
       inset: 10pt,
       radius: 4pt,
+      width: 100%,
+      breakable: false,
+      it
     )
+  }
 
-    set page(
-      paper: "us-letter", 
-      numbering: "1", 
-      number-align: right, 
-      margin: (
-        bottom: .875in,
-        rest: .625in
-      ), 
-      height: page-height, 
-      width: page-width, 
-      footer-descent: 40%,
-      footer: context{
-        set text(8pt, weight: 300)
-        smallcaps[Made with #link("https://typst.app/")[Typst]]
-        h(1fr)
-        [Jason Daniel Pieck - ]
-        text(fill: accent, counter(page).display("1"))
-      }
-    )
-    
-    // Title row.
+  set raw(lang: "c")
+  // #set raw(lang: none)
+  // show raw.where(block: true): it => figure(it)
+  // #set image(width: 75%)
+  // #set rect(width: 100%)
+  // #show rect: set align(left)
+
+  set page(
+    paper: "us-letter", 
+    numbering: "1", 
+    number-align: right, 
+    margin: (
+      bottom: .625in,
+      rest: .5in
+    ), 
+    columns: 2,
+    height: page-height, 
+    width: page-width, 
+    footer-descent: 40%,
+    footer: context{
+      set text(8pt, weight: 300)
+      smallcaps[Made with #link("https://typst.app/")[Typst]]
+      h(1fr)
+      [Jason Daniel Pieck - ]
+      text(fill: accent, counter(page).display("1"))
+    }
+  )
+  
+  // Title row.
+  place(
+    top, 
+    float: true, 
+    scope: "parent",
+    {
     grid(
       columns: (auto, 1fr), 
       align: horizon,
@@ -126,13 +152,17 @@
     v(-.3em)
     line(length: 100%, stroke: .5pt)
     v(-9pt)
-    line(length: 100%, stroke: .5pt )
+    line(length: 100%, stroke: .5pt )}
+  )
+  
+  // Main body.
 
-    
-    // Main body.
+  body
+}
 
-    body
-  }
+///////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////// 
+
 
 #let problem-num = counter("prob")
 
@@ -148,7 +178,7 @@
   heading(level: 1, h-content)
 }
 
-
+#let fig(path) = figure(image(path))
 
 // Rounding
 #let r1(num) = calc.round(num, digits: 1)
