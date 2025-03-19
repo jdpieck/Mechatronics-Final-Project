@@ -15,7 +15,7 @@
 #define PPR 1074
 
 // interpolated P-control
-#define KP 0.1         // P control parameter
+#define KP 0.2         // P control parameter
 #define KI 0.01 // Integral control parameter (adjust as needed)
 #define TARGET_DIST 25  // pulses
 #define DIS2GO 4
@@ -426,6 +426,8 @@ void loop() {
   // running distance from initial position to zero position
   int pulse_dist = dialDistanceToPulses(dial_ticks - initialPosition);
   // P-control
+  drivePulses(PPR);
+  delay(500);  // it is essential for controller reseting
   drivePulses(pulse_dist);
   delay(500);  // it is essential for controller reseting
   drivePulses(-PPR/4);

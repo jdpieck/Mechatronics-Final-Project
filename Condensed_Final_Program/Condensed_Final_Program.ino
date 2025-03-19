@@ -12,10 +12,11 @@
 #define BRAKE 8
 #define MAX_PWM 255
 #define MIN_PWM 52  // this one depends on the dead zone of the motor input voltage
-#define PPR 1074     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
+#define PPR 1045     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
+// #define PPR 1074     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
 
 // interpolated PI-control
-#define KP 0.1         //0.12  // P control parameter
+#define KP 0.15         //0.12  // P control parameter
 #define KI 0.01 // Integral control parameter (adjust as needed)
 #define TARGET_DIST 25  // pulses
 #define DIS2GO 4
@@ -217,38 +218,25 @@ ISR(TIMER1_COMPA_vect) {
   // Calculate position error
   positionError = distanceToGo - encoderPos;
 
-  // Stop the motor if within acceptable range
-  if (abs(positionError) < TARGET_DIST) {
-    // stopMotor();
-    // Serial.println("MOTOR STOPEEED");
-    PWM_value = 0;  // Stop motor
-    integralError = 0; // Reset integral term to avoid windup
+  // Compute integral term
+  integralError += positionError;
+
+  // Prevent integral windup
+  if (integralError > integralLimit) integralError = integralLimit;
+  if (integralError < -integralLimit) integralError = -integralLimit;
+  
+  // Optional: Add decay to integral term
+  integralError *= 0.99;
+
+  // Compute control output (PI controller)
+  int targetPWM = (int)(KP * (float)positionError + KI * integralError);
+
+  // Gradually increase PWM instead of jumping to max
+  if (abs(targetPWM) > abs(PWM_value) + DIS2GO) { // Increase gradually by 5 per cycle
+    if (targetPWM > PWM_value) PWM_value += DIS2GO;
+    else PWM_value -= DIS2GO;
   } else {
-    // Compute integral term
-    integralError += positionError;
-
-    // Prevent integral windup
-    if (integralError > integralLimit) integralError = integralLimit;
-    if (integralError < -integralLimit) integralError = -integralLimit;
-    
-    // Optional: Add decay to integral term
-    integralError *= 0.99;
-
-    // Compute control output (PI controller)
-    int targetPWM = (int)(KP * (float)positionError + KI * integralError);
-
-    // Gradually increase PWM instead of jumping to max
-    if (abs(targetPWM) > abs(PWM_value) + DIS2GO) { // Increase gradually by 5 per cycle
-      if (targetPWM > PWM_value) PWM_value += DIS2GO;
-      else PWM_value -= DIS2GO;
-    } else {
-      PWM_value = targetPWM; // If within range, set directly
-    }
-
-    // Constrain PWM to valid range
-    if (PWM_value > MAX_PWM) PWM_value = 255;
-    if (PWM_value < -MAX_PWM) PWM_value = -255;
-    // if (PWM_value < MIN_PWM && PWM_value > -MIN_PWM) PWM_value = 0;
+    PWM_value = targetPWM; // If within range, set directly
   }
 
   // Update last encoder reading
@@ -280,10 +268,10 @@ void drivePulses(int distInPulses) {
 
     // **Deadband to stop oscillation**
     if (abs(encoderPos - distInPulses) <= 1 ) {
-    // if (abs(encoderPos - distInPulses) <= TARGET_DIST && abs(PWM_value) < MIN_PWM)  {
+      PWM_value = 0;  // Stop motor
+      integralError = 0;  // Reset integral to prevent windup
       stopMotor();
       // Serial.println("Arrived at desired position!!!!!!");
-      integralError = 0;  // Reset integral to prevent windup
       break;
     }
   }
@@ -294,6 +282,8 @@ void driveTicks(float ticks) {
   int pulses = dialDistanceToPulses(ticks);
   drivePulses(pulses);
   dial = dial + ticks;
+
+  // For when it number of ticks is exceeded
   if (dial >= dial_ticks) {
     dial = dial - dial_ticks;
   } else if (dial < 0) {
