@@ -12,19 +12,20 @@
 #define BRAKE 8
 #define MAX_PWM 255
 #define MIN_PWM 52  // this one depends on the dead zone of the motor input voltage
-#define PPR 1045     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
+#define PPR 1074     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
 
-// interpolated P-control
-#define KP 0.2         //0.12  // P control parameter
-#define KI 0.04 // Integral control parameter (adjust as needed)
-#define TARGET_DIST 100  // pulses
-#define DIS2GO 3
+// interpolated PI-control
+#define KP 0.1         //0.12  // P control parameter
+#define KI 0.01 // Integral control parameter (adjust as needed)
+#define TARGET_DIST 25  // pulses
+#define DIS2GO 4
 
 int dist_moved = 0;
 int controlLoopRate = 150;
 int distanceToGo;
 int positionError = 0;
 int PWM_value;
+volatile byte motorDir = 0;
 float integralError = 0; // Accumulator for integral term
 float integralLimit = 1000; // Limit to prevent integral windup
 
@@ -213,54 +214,76 @@ void setupTimer(int freq) {
 
 // ISR of timer
 ISR(TIMER1_COMPA_vect) {
-  // calculate the position error
-  if (abs(distanceToGo - encoderPos) < TARGET_DIST) {
-    positionError = distanceToGo - encoderPos;
-  }
-  // positionError = set_distance - encoderPos;
-  else {
-    dist_moved = encoderPos - lastEncoderPos;
-    if (distanceToGo > 0) {
-      positionError += DIS2GO - dist_moved;
-      Serial.print("DEBUG: Position Error: ");
-      Serial.println(positionError);
+  // Calculate position error
+  positionError = distanceToGo - encoderPos;
+
+  // Stop the motor if within acceptable range
+  if (abs(positionError) < TARGET_DIST) {
+    // stopMotor();
+    // Serial.println("MOTOR STOPEEED");
+    PWM_value = 0;  // Stop motor
+    integralError = 0; // Reset integral term to avoid windup
+  } else {
+    // Compute integral term
+    integralError += positionError;
+
+    // Prevent integral windup
+    if (integralError > integralLimit) integralError = integralLimit;
+    if (integralError < -integralLimit) integralError = -integralLimit;
+    
+    // Optional: Add decay to integral term
+    integralError *= 0.99;
+
+    // Compute control output (PI controller)
+    int targetPWM = (int)(KP * (float)positionError + KI * integralError);
+
+    // Gradually increase PWM instead of jumping to max
+    if (abs(targetPWM) > abs(PWM_value) + DIS2GO) { // Increase gradually by 5 per cycle
+      if (targetPWM > PWM_value) PWM_value += DIS2GO;
+      else PWM_value -= DIS2GO;
     } else {
-      positionError += -DIS2GO - dist_moved;
+      PWM_value = targetPWM; // If within range, set directly
     }
+
+    // Constrain PWM to valid range
+    if (PWM_value > MAX_PWM) PWM_value = 255;
+    if (PWM_value < -MAX_PWM) PWM_value = -255;
+    // if (PWM_value < MIN_PWM && PWM_value > -MIN_PWM) PWM_value = 0;
   }
-  integralError += positionError; // Accumulate error over time
 
-  // Prevent integral windup
-  if (integralError > integralLimit) integralError = integralLimit;
-  if (integralError < -integralLimit) integralError = -integralLimit;
-
-  // Compute control output (PI controller)
-  PWM_value = (int)(KP * (float)positionError + KI * integralError);
-  // update the last_encoder reading
+  // Update last encoder reading
   lastEncoderPos = encoderPos;
 }
 
 // parameter is the distance in pulses we want the motor to drive to
 void drivePulses(int distInPulses) {
-  // get the sign of running distInPulses
   int dir_sign = (distInPulses > 0 ? 1 : -1);
   resetMotorControl(distInPulses);
+
   while (1) {
-
-    // Serial.print("DEBUG: distInPulses: "); Serial.println(distInPulses);
-    // Serial.print("DEBUG: PWM_value: "); Serial.println(PWM_value);
-    // Serial.print("DEBUG: encoderPos: "); Serial.println(encoderPos);
-
-    if (PWM_value > 0) {
+    // Update motor direction only when necessary
+    if (PWM_value > 0 && motorDir != 1) {
       setMotorCCW();
+      motorDir = 1;
     }
-    if (PWM_value < 0) {
+    if (PWM_value < 0 && motorDir != 0) {
       setMotorCW();
+      motorDir = 0;
     }
-    // setMotorCCW();
+
     driveMotor(abs(PWM_value));
-    if ((encoderPos - distInPulses) * dir_sign >= -1) {
+
+    // Serial.print("PWM_value: ");
+    // Serial.println(PWM_value);
+    // Serial.print("positionError: ");
+    // Serial.println(positionError);
+
+    // **Deadband to stop oscillation**
+    if (abs(encoderPos - distInPulses) <= 1 ) {
+    // if (abs(encoderPos - distInPulses) <= TARGET_DIST && abs(PWM_value) < MIN_PWM)  {
       stopMotor();
+      // Serial.println("Arrived at desired position!!!!!!");
+      integralError = 0;  // Reset integral to prevent windup
       break;
     }
   }
@@ -277,17 +300,6 @@ void driveTicks(float ticks) {
     dial = dial + dial_ticks;
   }
 }
-
-// int correctDistance(int distance) {
-//   if (distance < 0) {
-//     // Serial.println("Wrapping Value");
-//     return distance + dial_ticks;
-//   } else if (distance == 0) {
-//     return dial_ticks;
-//   } else {
-//     return distance;
-//   }
-// }
 
 /* move CCW to a dial position */
 // input: dial position combo it will go to;
@@ -456,16 +468,13 @@ int getCombination(char *arr) {
 
     if (dialPosition >= 0 && dialPosition <= dial_ticks) {
       Serial.println("\nCombination Number Accepted!\n");
-      // Serial.println();
       inputFlag = 0;
       return dialPosition;
     }
 
     else {
-      Serial.print("\nInvalid Input! Input should be from 0-");
-      Serial.println((int)dial_ticks);
+      Serial.print("\nInvalid Input! Input should be from 0-"); Serial.println((int)dial_ticks);
       Serial.println();
-      // Serial.println("Please try again.\n");
     }
   }
 }
@@ -626,13 +635,14 @@ void AutomaticControl() {
     //Move to second number
     Serial.print("\nMoving to: ");
     Serial.println(combo2);
+
     // move 1 circle CCW with function moveCcwToDialNO()
     moveCcwToDialNO(dial);
     delay(500);
+
     // move to the 2nd number CCW with function moveCcwToDialNO()
     moveCcwToDialNO(combo2);
     delay(500);
-
 
     // Move to third number
     Serial.print("\nMoving to: ");
@@ -648,7 +658,11 @@ void AutomaticControl() {
     // update machine message
 
     // prompt the user to input '#' to go back the main menu
-
+    Serial.println("Press # to Exit");
+    char key = customKeypad.getKey();
+    while(key!='#') {
+      key = customKeypad.getKey();
+    };
     // go back to the idle mode
     setIdleMenu();
     printHeaderAndMenu();
@@ -671,8 +685,6 @@ void ManualOperation(char selection) {
         str.toCharArray(machineMessage, 25);
         Serial.println("\nMoving 1 Tick CW");
         driveTicks(1);  //move 1 tick CW decrease
-        // dial++;
-        // if (dial == dial_ticks) dial = 0;
         break;
 
       case '2':
@@ -680,8 +692,6 @@ void ManualOperation(char selection) {
         str.toCharArray(machineMessage, 25);
         Serial.println("\nMoving 1 Tick CWW");
         driveTicks(-1);  //zero is CCW
-        // dial--;
-        // if (dial ==-1) dial = dial_ticks-1;
         break;
     }
     Serial.print("Dial Position is at: ");
@@ -691,7 +701,7 @@ void ManualOperation(char selection) {
 
 // ERT
 void ErrorTreatment() {
-  // take actions here to treat detected errors
+  Serial.println("IMPORTANT: Reset the System!");
 }
 
 void setup() {
