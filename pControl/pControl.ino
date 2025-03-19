@@ -15,10 +15,13 @@
 #define PPR 1080
 
 // interpolated P-control
-#define KP 0.2         // P control parameter
-#define KI 0.06 // Integral control parameter (adjust as needed)
+#define KP 0.1         // P control parameter
+#define KI 0.01 // Integral control parameter (adjust as needed)
 #define TARGET_DIST 25  // pulses
 #define DIS2GO 4
+
+volatile byte motorDir = 0;
+
 int dist_moved = 0;
 int controlLoopRate = 150;
 
@@ -242,6 +245,8 @@ ISR(TIMER1_COMPA_vect) {
 
   // Stop the motor if within acceptable range
   if (abs(positionError) < TARGET_DIST) {
+    // stopMotor();
+    // Serial.println("MOTOR STOPEEED");
     PWM_value = 0;  // Stop motor
     integralError = 0; // Reset integral term to avoid windup
   } else {
@@ -276,7 +281,37 @@ ISR(TIMER1_COMPA_vect) {
   lastEncoderPos = encoderPos;
 }
 
+// ISR(TIMER1_COMPA_vect) {
+//   dist_moved = encoderPos - lastEncoderPos;
+  
+//   if (abs(distanceToGo - encoderPos) < TARGET_DIST) {
+//     positionError = distanceToGo - encoderPos;
+//   } else {
+//     if (distanceToGo > 0) {
+//       positionError += DIS2GO - dist_moved;
+//     } else {
+//       positionError += -DIS2GO - dist_moved;
+//     }
+//   }
 
+//   // Update distanceToGo
+//   distanceToGo -= dist_moved;
+
+//   // Compute integral term
+//   integralError += positionError;
+//   if (integralError > integralLimit) integralError = integralLimit;
+//   if (integralError < -integralLimit) integralError = -integralLimit;
+
+//   // Compute control output
+//   PWM_value = (int)(KP * (float)positionError + KI * integralError);
+
+//   // Constrain PWM to valid range
+//   if (PWM_value > MAX_PWM) PWM_value = 255;
+//   if (PWM_value < -MAX_PWM) PWM_value = -255;
+
+//   // Update last encoder reading
+//   lastEncoderPos = encoderPos;
+// }
 
 
 void setup() {
@@ -305,30 +340,35 @@ void drivePulses(int distInPulses) {
 
   while (1) {
     // Update motor direction only when necessary
-    if (PWM_value > 0 && motorDir != CCW) {
+    if (PWM_value > 0 && motorDir != 1) {
       setMotorCCW();
-      motorDir = CCW;
+      motorDir = 1;
     }
-    if (PWM_value < 0 && motorDir != CW) {
+    if (PWM_value < 0 && motorDir != 0) {
       setMotorCW();
-      motorDir = CW;
+      motorDir = 0;
     }
 
     driveMotor(abs(PWM_value));
 
     Serial.print("PWM_value: ");
     Serial.println(PWM_value);
+    // Serial.print("distanceToGo: ");
+    // Serial.println(distanceToGo);
     Serial.print("positionError: ");
     Serial.println(positionError);
 
-    // Stop motor when close enough to target
-    if (abs(distanceToGo) <= TARGET_DIST) {
+    // **Deadband to stop oscillation**
+    if (abs(encoderPos - distInPulses) <= TARGET_DIST && abs(PWM_value) < MIN_PWM)  {
+    // if (abs(distanceToGo) <= TARGET_DIST && abs(PWM_value) < MIN_PWM) {  
       stopMotor();
-      Serial.println("Arrived at desired position!");
+      Serial.println("Arrived at desired position!!!!!!");
+      integralError = 0;  // Reset integral to prevent windup
       break;
     }
   }
 }
+
 
 
 // parameter is the distance we want the motor to drive to

@@ -20,6 +20,7 @@
     
     show heading.where(level: 1): set text(fill: accent)
     show heading.where(level: 2): set text(fill: luma(20%))
+    show heading.where(level: 3): set text(fill: luma(25%))
 
     show heading.where(level: 1): it => context{
       if counter(heading).get() != (0, ) {pagebreak()}

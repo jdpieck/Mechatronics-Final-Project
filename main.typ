@@ -20,6 +20,7 @@
 = Project Description
 
 = Free-Time System (FTS)
+#fig("diagram.svg")
 
 = Project Circuit 
 #fig("PadlockCircuit.png")
