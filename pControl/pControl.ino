@@ -299,33 +299,65 @@ void setup() {
 }
 
 
-// parameter is the distance we want the motor to drive to
 void drivePulses(int distInPulses) {
-  // get the sign of running distInPulses
   int dir_sign = (distInPulses > 0 ? 1 : -1);
   resetMotorControl(distInPulses);
+
   while (1) {
-    if (PWM_value > 0) {
+    // Update motor direction only when necessary
+    if (PWM_value > 0 && motorDir != CCW) {
       setMotorCCW();
+      motorDir = CCW;
     }
-    if (PWM_value < 0) {
+    if (PWM_value < 0 && motorDir != CW) {
       setMotorCW();
+      motorDir = CW;
     }
-    // setMotorCCW();
+
     driveMotor(abs(PWM_value));
+
     Serial.print("PWM_value: ");
     Serial.println(PWM_value);
     Serial.print("positionError: ");
     Serial.println(positionError);
-    // stop the motor when we are at the desired position
-    // if(encoderPos - distInPulses <= 1){
-    if ((encoderPos - distInPulses) * dir_sign >= -1) {
+
+    // Stop motor when close enough to target
+    if (abs(distanceToGo) <= TARGET_DIST) {
       stopMotor();
       Serial.println("Arrived at desired position!");
       break;
     }
   }
 }
+
+
+// parameter is the distance we want the motor to drive to
+// void drivePulses(int distInPulses) {
+//   // get the sign of running distInPulses
+//   int dir_sign = (distInPulses > 0 ? 1 : -1);
+//   resetMotorControl(distInPulses);
+//   while (1) {
+//     if (PWM_value > 0) {
+//       setMotorCCW();
+//     }
+//     if (PWM_value < 0) {
+//       setMotorCW();
+//     }
+//     // setMotorCCW();
+//     driveMotor(abs(PWM_value));
+//     Serial.print("PWM_value: ");
+//     Serial.println(PWM_value);
+//     Serial.print("positionError: ");
+//     Serial.println(positionError);
+//     // stop the motor when we are at the desired position
+//     // if(encoderPos - distInPulses <= 1){
+//     if ((encoderPos - distInPulses) * dir_sign >= -1) {
+//       stopMotor();
+//       Serial.println("Arrived at desired position!");
+//       break;
+//     }
+//   }
+// }
 
 void loop() {
   // machine setup

@@ -12,14 +12,16 @@ Files & media:
 5. [ ] System development: detailed description of the code development of the project
 6. [ ] Explain challenges encountered
 7. [ ] General comments/feedback
-8. [ ] Attach a picture of the final hardware setup
-9. [ ] Attach completed codes  
-    - [ ] EME154S24_FinalProject_FirstName_LastName.ino
-## Personal Task
+8. [x] Attach a picture of the final hardware setup
+9. [ ] Attach completed codes  (`EME154S24_FinalProject_FirstName_LastName.ino`)
+## Personal Tasks
 - [x] Fix encoder distance per pulse
-## Nice to Have
+- [ ] Update Header 3
+- [ ] Check if we need to redraw circuit diagram 
+# Development
+## Extra Functionality
 - [ ] Display current location on setup
-- [ ] have live number entry
+- [x] have live number entry
 ## Questions
 - [ ] Ask if operation needs to be mirrored
 - [x] Ask if we are doing 40 tick or 60 tick? 
