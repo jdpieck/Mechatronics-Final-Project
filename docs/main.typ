@@ -6,31 +6,29 @@
   class: "EME 154 A03",
   authors: "Jason Daniel Pieck",
   emails: "jdpieck@ucdavis.com",
-  page-height: 10in,
-  page-width: 7.5in,
+  page-height: 11in,
+  page-width: 8.5in,
 )
 
-
 = Project Description
-The Automatic Padlock Opener Control (APOC) is a free-time system (FTS) designed to mount to and open a pad lock. 
+The Automatic Padlock Opener Control (APOC) is a free-time system (FTS) designed to mount onto and open a padlock.
 
-After initializing the system by entering the starting position, the user can use the manual mode to manually enter in the lock combination. Alternatively, the user can also select the automatic mode in which they can enter the three combination numbers onto the keypad and let the system enter the combination. 
+After initializing the system by entering the starting position, the user can operate in manual mode to input the lock combination manually. Alternatively, in automatic mode, the user can enter the three combination numbers on the keypad, allowing the system to enter the combination automatically.
 
-If at any point the user would like to reinitialize the system, they are able to do so through the setup menu. One the user is finished, they can then exit the system. 
+If at any point the user wishes to reinitialize the system, they can do so through the setup menu. Once finished, they can exit the system.
 
 
 = Free-Time System (FTS)
-The free time system is modeled as shown in the @diagram.  
+The free-time system is modeled as shown in @diagram.
 #fig("diagram.svg") <diagram>
 
-Based on the frequency determined in the clock setup, the system runs through the entire system, activating different modules based on user inputs and state information. 
+Based on the clock setup frequency, the system continuously runs, activating different modules based on user inputs and state information.
 
-Encoder signals are measured using a timer-based interrupt, which then is based on the mode is determines the next instance of motor control. 
+Encoder signals are measured using a timer-based interrupt, which determines the next instance of motor control based on the selected mode.
 
-// The
 
-= Project Circuit 
-The following circuit diagram seen in @circuit was provided to us in the project documentation. The hardware setup can be seen in @hardware.
+= Project Circuit
+The circuit diagram in @circuit was provided in the project documentation. The hardware setup is shown in @hardware.
 #fig("PadlockCircuit.png") <circuit>
 
 = Hardware Setup <hardware>
@@ -38,36 +36,29 @@ Below is the completed hardware setup.
 #fig("wiring.jpg")
 
 
-// #set page(columns: 2)
 = Human-Machine Interface <hmi>
-The entire Human-Machine Interface (HMI) exists through the serial monitor. This means that in order for user to get feedback and instructions from the system, the Arduino must be connected to the Arduino IDE.  
+The Human-Machine Interface (HMI) operates entirely through the serial monitor. This means the Arduino must be connected to the Arduino IDE for the user to receive feedback and instructions.
 
 == Startup
-When the system first powers on, it sends the following message.
+When the system powers on, it sends the following message:
 ```serial
 ══════ System Startup Initialized ══════
 ═══ System Successfully Initialized! ═══
 ```
-This helps the user understand when a new session is started. 
+The first message helps the user recognize when a new session begins, and the second message signifies that the system started up successfully.
 
-== Setup 
-Once the system has been initialized, it will display the following menu.
+== Setup
+Once initialized, the system displays the following menu:
 ```serial
 EME-154 Mechatronics    Free Time System
 Jason Daniel Pieck
 ****************************************
             MACHINE SETUP MENU
 ****************************************
- 
- 
- 
- 
-****************************************
 ```
-This is immediately followed by a prompt asking the user to enter in the starting position. In the case the the user enters in a position that is outside the dial range, the system will throw and error, and inform the user what the range of the dial is. 
+This is followed by a prompt asking the user to enter the starting position. If the user enters a position outside the dial range, the system will display an error message and indicate the valid range.
 
-One a dial position within range is entered, the system send a confirmation message, and sets the system position to the entered position. 
-
+Once a valid dial position is entered, the system confirms the input and sets the position accordingly:
 ```serial
 Input the initial dial position.
 (2-digit) Combination Input: 88
@@ -78,11 +69,10 @@ Combination Number Accepted!
 
 Dial Position Set to 24
 ```
+Note that the logic used to validate the input range is the same in Automatic Mode and will return the same messages for out-of-range inputs.
 
-Please not that the logic used here to determine whether a combination is in range is the same as logic used in the Automatic Mode, and will send the user the same messages when an out-of-range combination is entered. 
-
-== Idle 
-Immediately after the user has entered an in-range combination, the following menu is displayed. From this menu, the user is able to access the rest of the system functionality.
+== Idle
+After entering a valid combination, the following menu appears, allowing access to the system's functionalities:
 ```serial
 EME-154 Mechatronics    Free Time System
 Jason Daniel Pieck
@@ -96,7 +86,7 @@ Jason Daniel Pieck
 ****************************************
 ```
 == Manual
-Once manual mode is selected, the system displays the following menu.
+When the user selects manual mode, the following menu is displayed:
 ```serial
 EME-154 Mechatronics    Free Time System
 Jason Daniel Pieck
@@ -105,13 +95,12 @@ Jason Daniel Pieck
 ****************************************
 1. Move One Tick CW
 2. Move One Tick CCW
- 
 5. Exit
 ****************************************
 Manual Mode Accepted
 Dial Position is at: 24
 ```
-When the user selects `1` or `2` on the keypad, the system will physically respond, and inform the user of the direction of motion as well as the dial position.  
+When selecting `1` or `2` on the keypad, the system moves accordingly and provides feedback:
 ```serial
 Moving 1 Tick CW
 Dial Position is at: 25
@@ -119,27 +108,22 @@ Dial Position is at: 25
 Moving 1 Tick CW
 Dial Position is at: 26
 
-Moving 1 Tick CWW
+Moving 1 Tick CCW
 Dial Position is at: 25
 ```
-If the user selects `5`, the system will exit and return to the Idle Menu.
+Selecting `5` exits back to the Idle Menu.
+
 == Automatic
-Upon selecting Automatic Mode, the following menu is displayed. 
+Upon selecting Automatic Mode, the following menu is displayed:
 ```serial
 EME-154 Mechatronics    Free Time System
 Jason Daniel Pieck
 ****************************************
             AUTOMATIC MENU
 ****************************************
- 
- 
- 
- 
-****************************************
 Please enter the lock combination.
 ```
-This is immediately followed by a series of prompts for each combination number. Each time, the system check the combination number to ensure that it is in-range using the same logic as in the Setup Mode. 
-
+The system prompts the user to input each combination number, verifying their validity as in Setup Mode:
 ```serial
 ~~~~ Combination 1 ~~~~
 (2-digit) Combination Input: 10
@@ -153,9 +137,9 @@ Combination Number Accepted!
 (2-digit) Combination Input: 30
 Combination Number Accepted!
 ```
-After all three combinations have been accepted, the system then moves through each combination along with the added rotations for the first and second combination. 
+Once all three numbers are accepted, the system enters the combination, adding required rotations for the first and second numbers.
 
-Once complete, the user is prompted to exit the automatic mode by pressing `#` on the keypad. This will return the user to the Idle Menu. 
+After completion, the user is prompted to exit automatic mode by pressing `#` on the keypad, returning to the Idle Menu:
 ```serial
 Moving to: 10
 
@@ -166,84 +150,62 @@ Moving to: 30
 You can pull the shackle now!
 Press # to Exit
 ```
-== Exit 
-If the user ops to exit the system from the Idle Menu, the following message will be displayed. 
+== Exit
+If the user opts to exit the system from the Idle Menu, the following message is displayed:
 ```serial
 ═════════════ System Exit ══════════════
 ```
 
+#colbreak()
+= System Development
+This system was developed over two weeks after acquiring the hardware.
 
-= System Development 
-This system was developed over the course of a two week period after acquiring hardware. 
+Although the project was based on provided code, large sections were rewritten, allowing a focus on developing Automatic Mode and tuning motor control parameters, including PI control.
 
-The system was built on top of the already provided code for the project, though large parts of the code base have been rewritten. This allowed me to focus my time on the development of the Automatic Mode and tuning the motor control parameters, PI control included. 
+== Code Accessibility <serial>
+To improve readability and debugging efficiency, several steps were taken.
 
-== Coding Accessability
-Since code is constantly under revision, I took several measure to enure code readability to decrease the total time debugging. 
-
-=== Renaming Functions
-Before beginning work, I went through and renamed the FTS functions to their full, unshortened names. This allowed me to more quickly identify what a particular function's goal was, as I did not need to reference a key. 
-
-This practice was also applied to other functions across the code base to better reflect code functionality and purpose. 
-
-=== Serial Monitor Messages <serial>
-While testing specific parts of the FTS, I made heavy use of Serial Monitor messages to provide insight to code operations. Not only was this useful in determining function outputs, but also when functions were being triggered.
+Before coding, I renamed FTS functions to full, descriptive names, making their purpose clear without needing a reference key. Serial Monitor messages were also heavily utilized to track function outputs and execution, aiding debugging.
 
 == Localizing Function Logic
-In many instances while writing the code base, I realized that being near duplicated. This meant lots of copy-pasting while making changes, and increased the odds for accidental bugs.
-
-A great example of this was the logic used to determine whether a user-entered combination was within the dial limit. Initially, this code was present once in the Setup Function, and three separate times in the Automatic Function. 
-
-By combing it all into the a single function `getCombination()`, I was able to use the same function in four different places across the code base, letting me make modifications and adjustments with ease. 
+Redundant code was consolidated into single functions. For example, the combination validation logic initially appeared separately in Setup Mode and three times in Automatic Mode. By creating a single function, `getCombination()`, I was able to streamline modifications and reduce errors.
 
 == Git Version Management
-After running into some trouble with code development, I begun using Git. After successfully implementing a new feature or change to the system, I would create a commit. 
-
-This allowed me to have set return points for the system should the code stop functioning as expected. This also made it easier to keep track of my changes over time, increasing my capacity to perform trouble shooting, and also making documentation a straight forward process. 
+After facing development setbacks, I began using Git for version control. Successful changes were committed, providing stable return points and facilitating troubleshooting.
 
 You can view the full repository #link("https://github.com/jdpieck/Mechatronics-Final-Project")[here].
 
+#colbreak()
 = Encountered Challenges
-While I encountered and overcame a wide range of challenges during the development of this system, listed below are some of the more notable ones. 
+Below are some notable challenges faced during development.
 
-== Backwards PWM Setup
-After uploading the provided starting code for the system, I noticed while  rotating the dial in Manual Mode, the system would not stop. Using Serial messages to debug as discussed in @serial, I was able to determine the the stop trigger for the motor in `drivePulses()` was not being called. 
+== Inverted PWM Setup
+Initially, in Manual Mode, the motor failed to stop properly. Debugging via Serial Monitor revealed that the stop condition in `drivePulses()` was incorrectly set, causing the motor to continue running unexpectedly. 
 
-It turned out that the stop condition based on whether the PWM was positive or negative was swapped such that it would never trigger. 
-
-After swapping the comparison operators, Manual Mode was functional. 
+Swapping comparison operators resolved the issue, ensuring the motor stopped as intended when the correct conditions were met.
 
 == Memory Issues
-On my second day of development, I noticed that the menus discussed in @hmi would start disappearing seemingly at random. Initially, I suspected that the menu functions were not being called properly, but that was not the case.
+During testing, menu text would disappear randomly, leading to unexpected behavior in system responses. Investigation revealed that the Arduino was exceeding its dynamic memory limit, likely due to excessive use of `Serial.print()` statements and large string allocations.
 
-After further experimentation, it turns out that the Arduino was running out of system memory. Every `Serial.print()` function creates a global character array that takes space in the dynamic memory. Bellow is the Ouput Message that the Arduino IDE would display when the strings started disappearing.  
+Bellow is the Ouput Message that the Arduino IDE would display when the strings started disappearing.  
 
 ```none
 Sketch uses 11626 bytes (36%) of program storage space. Maximum is 32256 bytes.
 
 Global variables use 1689 bytes (82%) of dynamic memory, leaving 359 bytes for local variables. Maximum is 2048 bytes.
 ```
-Even though the full memory is not being used, once the system exceeds 1688 bytes of dynamic memory, it is start deleting variables. 
 
-The solution to this problem is to reduce the total number of `Serial.print()` commands in the code base, and stay below the 1688 bytes dynamic memory threshold. 
+ By reducing `Serial.print()` commands and staying below 1688 bytes of dynamic memory usage, these issues were resolved, resulting in stable menu operation.
 
 == Motor Control Tuning
-Tuning the motor controller ended up taking the majority of the development time. The primary challenge I faced was hitting targets at different distances. 
+Fine-tuning the motor control was the most time-consuming aspect of the project. While the system performed well for full rotations, it consistently over-rotated on short movements due what I believe to be accumulated errors in step calculations. Introducing proportional-integral (PI) control helped mitigate these errors, but unexpected behavior persisted, requiring a complete rewrite of the ISR and `drivePulses()` functions. 
 
-Through testing, I found that when I properly tuned the system for a ful rotation or more, shorter rotations (less than 1/4 a full rotation) would over rotate. If I adjusted to correct for the shorter rotations, then a full rotation would be under rotate. 
+After multiple iterations and lots debugging, the system was successfully able to enter lock combinations accurately in Automatic Mode, reliably stopping near the correct positions.
 
-In my attempts to address, I introduced PI control. This helped me rein in some of the error, but I found that the system didn't respond to changes in `KI` or `KP` as expected. This lead me to rewrite the `ISR` as well as the `drivePulses()` functions. 
-
-Ultimately, I was able to achieve a system response that was able to enter a combination using Automatic Mode. 
-
-
+// #colbreak()
 = Comments & Feedback
-Overall, I am happy to have done this project. The project gave me a great opportunity to develop a mechatronics system with motor control.  
+Overall, I found this project to be highly rewarding, providing valuable hands-on experience in mechatronics and motor control development. The combination of hardware and software challenges made for an engaging learning experience.
 
-I think that it would have been great is students  have the ability to take home the physical lock systems to test on. Since the motor responds differently when the system is loaded, the final demonstration involved me having to change a load of parameters last minute. 
+I think that it would have been great is students have the ability to take home the physical lock systems to test on. Since the motor response is greatly affected by its load, the final demonstration involved me having to change a load of parameters last minute. 
 
-I would believe that the supplied codebase would benefit from some revision specifically focused on variable and function separation. 
-
-With home much code there is, it should be split up across multiple files. There are a couple of ways to do this, but I believe the most informative would be use additional C++ and Header files for system functions. 
-
-This would not only make it easier for new coders to get familiar with the code base, but it would also force the code to be purely functional with input and outputs. At the moment, I feel that there is a lot of inter-connectivity in that makes it hard for students to wrap their head around what is happening. Individualizing code functions is a great way to minimize this.  
+Additionally, the provided codebase would benefit from improved structure and organization. Splitting it into multiple files, such as additional C++ and header files, would enhance modularity, making it easier for students to read, understand, and modify the code. Implementing a more structured approach to function calls and state management would also contribute to improved maintainability and scalability.

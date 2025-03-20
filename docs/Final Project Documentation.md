@@ -5,14 +5,14 @@ Files & media:
 # Overview
 ## Canvas Tasks
 1. [x] Project Description: summary of the project and functionality of each mode
-2. [ ] Description of the FTS: Description of each component of the FTS for the project
+2. [x] Description of the FTS: Description of each component of the FTS for the project
 3. [x] Project Circuit: Show a clear diagram of the circuit.
 4. [x] Human-Machine Interface (Serial Monitor and LCD): Show a picture of the human-machine interaction and description.
     1. [x] Menu for each mode
     2. [x] Input and output interface.
 5. [x] System development: detailed description of the code development of the project
-6. [ ] Explain challenges encountered
-7. [ ] General comments/feedback
+6. [x] Explain challenges encountered
+7. [x] General comments/feedback
 8. [x] Attach a picture of the final hardware setup
 9. [ ] Attach completed codes  `EME154S24_FinalProject_FirstName_LastName.ino`
 ## Document Task

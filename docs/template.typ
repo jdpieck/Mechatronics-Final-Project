@@ -78,7 +78,7 @@
     radius: 2pt,
   )
   
-  show raw.where(block: true): set text(.96em)
+  // show raw.where(block: true): set text(.96em)
   // Display block code
   show raw.where(block: true, lang: "cpp"): block.with(
     fill: luma(96%),
@@ -121,8 +121,8 @@
     numbering: "1", 
     number-align: right, 
     margin: (
-      bottom: .625in,
-      rest: .5in
+      bottom: .75in,
+      rest: .625in
     ), 
     columns: 2,
     height: page-height, 
@@ -130,10 +130,10 @@
     footer-descent: 40%,
     footer: context{
       set text(8pt, weight: 300)
-      smallcaps[Made with #link("https://typst.app/")[Typst]]
+      smallcaps[#text(fill: accent, weight: "bold")[#title] - #class]
       h(1fr)
       [Jason Daniel Pieck - ]
-      text(fill: accent, counter(page).display("1"))
+      text(fill: accent, weight: "bold", counter(page).display("1"))
     }
   )
   
@@ -156,7 +156,7 @@
         stack(
           spacing: 0.6em,
           text(weight: "bold", authors),
-          link("mailto:" + emails)[#emails],
+          link("mailto:" + emails)[#text(.8em)[#emails]],
           text(weight: 300, .8em, datetime.today().display("[month repr:long] [day], [year]"))
         )
       )  
