@@ -25,11 +25,18 @@ The free time system is modeled as shown in the @diagram.
 
 Based on the frequency determined in the clock setup, the system runs through the entire system, activating different modules based on user inputs and state information. 
 
+Encoder signals are measured using a timer-based interrupt, which then is based on the mode is determines the next instance of motor control. 
+
 // The
 
 = Project Circuit 
 The following circuit diagram seen in @circuit was provided to us in the project documentation. The hardware setup can be seen in @hardware.
 #fig("PadlockCircuit.png") <circuit>
+
+= Hardware Setup <hardware>
+Below is the completed hardware setup.
+#fig("wiring.jpg")
+
 
 // #set page(columns: 2)
 = Human-Machine Interface <hmi>
@@ -221,15 +228,22 @@ Even though the full memory is not being used, once the system exceeds 1688 byte
 The solution to this problem is to reduce the total number of `Serial.print()` commands in the code base, and stay below the 1688 bytes dynamic memory threshold. 
 
 == Motor Control Tuning
-Tuning the motor controller ended up taking the majority of the development time. 
+Tuning the motor controller ended up taking the majority of the development time. The primary challenge I faced was hitting targets at different distances. 
 
+Through testing, I found that when I properly tuned the system for a ful rotation or more, shorter rotations (less than 1/4 a full rotation) would over rotate. If I adjusted to correct for the shorter rotations, then a full rotation would be under rotate. 
 
-=== Re-Writing the ISR
-=== Re-Writing `drivePulses()`
+In my attempts to address, I introduced PI control. This helped me rein in some of the error, but I found that the system didn't respond to changes in `KI` or `KP` as expected. This lead me to rewrite the `ISR` as well as the `drivePulses()` functions. 
+
+Ultimately, I was able to achieve a system response that was able to enter a combination using Automatic Mode. 
+
 
 = Comments & Feedback
+Overall, I am happy to have done this project. The project gave me a great opportunity to develop a mechatronics system with motor control.  
 
-= Hardware Setup <hardware>
-#fig("wiring.jpg")
+I think that it would have been great is students  have the ability to take home the physical lock systems to test on. Since the motor responds differently when the system is loaded, the final demonstration involved me having to change a load of parameters last minute. 
 
+I would believe that the supplied codebase would benefit from some revision specifically focused on variable and function separation. 
 
+With home much code there is, it should be split up across multiple files. There are a couple of ways to do this, but I believe the most informative would be use additional C++ and Header files for system functions. 
+
+This would not only make it easier for new coders to get familiar with the code base, but it would also force the code to be purely functional with input and outputs. At the moment, I feel that there is a lot of inter-connectivity in that makes it hard for students to wrap their head around what is happening. Individualizing code functions is a great way to minimize this.  
