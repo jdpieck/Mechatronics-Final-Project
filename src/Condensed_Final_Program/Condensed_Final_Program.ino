@@ -11,13 +11,13 @@
 #define DIR 13
 #define BRAKE 8
 #define MAX_PWM 255
-#define MIN_PWM 52  // this one depends on the dead zone of the motor input voltage
+#define MIN_PWM 120  // this one depends on the dead zone of the motor input voltage
 #define PPR 1045     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
 // #define PPR 1074     // 1080 is ideally, but there may exists some offset from your observation and sensor noise
 
 // interpolated PI-control
-#define KP 0.15         //0.12  // P control parameter
-#define KI 0.01 // Integral control parameter (adjust as needed)
+#define KP 1.2        //0.12  // P control parameter
+#define KI 0.02 // Integral control parameter (adjust as needed)
 #define TARGET_DIST 25  // pulses
 #define DIS2GO 4
 

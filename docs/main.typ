@@ -209,13 +209,25 @@ After swapping the comparison operators, Manual Mode was functional.
 == Memory Issues
 On my second day of development, I noticed that the menus discussed in @hmi would start disappearing seemingly at random. Initially, I suspected that the menu functions were not being called properly, but that was not the case.
 
-Instead, it turns out that the Arduino was running out of system memory. 
+After further experimentation, it turns out that the Arduino was running out of system memory. Every `Serial.print()` function creates a global character array that takes space in the dynamic memory. Bellow is the Ouput Message that the Arduino IDE would display when the strings started disappearing.  
+
+```none
+Sketch uses 11626 bytes (36%) of program storage space. Maximum is 32256 bytes.
+
+Global variables use 1689 bytes (82%) of dynamic memory, leaving 359 bytes for local variables. Maximum is 2048 bytes.
+```
+Even though the full memory is not being used, once the system exceeds 1688 bytes of dynamic memory, it is start deleting variables. 
+
+The solution to this problem is to reduce the total number of `Serial.print()` commands in the code base, and stay below the 1688 bytes dynamic memory threshold. 
 
 == Motor Control Tuning
+Tuning the motor controller ended up taking the majority of the development time. 
+
+
 === Re-Writing the ISR
 === Re-Writing `drivePulses()`
 
-= General Comments/Feedback
+= Comments & Feedback
 
 = Hardware Setup <hardware>
 #fig("wiring.jpg")

@@ -97,6 +97,17 @@
       it
     )
   }
+  show raw.where(lang: "none", block: true): it => {
+    set text(fill: white)
+    block(
+      fill: black,
+      inset: 10pt,
+      radius: 4pt,
+      width: 100%,
+      breakable: false,
+      it
+    )
+  }
 
   set raw(lang: "c")
   // #set raw(lang: none)
