@@ -32,7 +32,7 @@ The following circuit diagram seen in @circuit was provided to us in the project
 #fig("PadlockCircuit.png") <circuit>
 
 // #set page(columns: 2)
-= Human-Machine Interface
+= Human-Machine Interface <hmi>
 The entire Human-Machine Interface (HMI) exists through the serial monitor. This means that in order for user to get feedback and instructions from the system, the Arduino must be connected to the Arduino IDE.  
 
 == Startup
@@ -179,7 +179,7 @@ Before beginning work, I went through and renamed the FTS functions to their ful
 
 This practice was also applied to other functions across the code base to better reflect code functionality and purpose. 
 
-=== Serial Monitor Messages
+=== Serial Monitor Messages <serial>
 While testing specific parts of the FTS, I made heavy use of Serial Monitor messages to provide insight to code operations. Not only was this useful in determining function outputs, but also when functions were being triggered.
 
 == Localizing Function Logic
@@ -197,8 +197,20 @@ This allowed me to have set return points for the system should the code stop fu
 You can view the full repository #link("https://github.com/jdpieck/Mechatronics-Final-Project")[here].
 
 = Encountered Challenges
+While I encountered and overcame a wide range of challenges during the development of this system, listed below are some of the more notable ones. 
+
 == Backwards PWM Setup
+After uploading the provided starting code for the system, I noticed while  rotating the dial in Manual Mode, the system would not stop. Using Serial messages to debug as discussed in @serial, I was able to determine the the stop trigger for the motor in `drivePulses()` was not being called. 
+
+It turned out that the stop condition based on whether the PWM was positive or negative was swapped such that it would never trigger. 
+
+After swapping the comparison operators, Manual Mode was functional. 
+
 == Memory Issues
+On my second day of development, I noticed that the menus discussed in @hmi would start disappearing seemingly at random. Initially, I suspected that the menu functions were not being called properly, but that was not the case.
+
+Instead, it turns out that the Arduino was running out of system memory. 
+
 == Motor Control Tuning
 === Re-Writing the ISR
 === Re-Writing `drivePulses()`
