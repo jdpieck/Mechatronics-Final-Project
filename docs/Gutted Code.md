@@ -133,7 +133,7 @@ void AutomaticControl() {
   }
 }
 ```
-### Bullshit with Strings
+### Memory Issue - Strings
 ```cpp
 #include <Keypad.h>
 #include <math.h>
@@ -873,7 +873,7 @@ void loop() {
   }
 } 
 ```
-### Bullshit with Characters
+### Memory Issue -  Characters
 ```cpp
 #include <Keypad.h>
 #include <math.h>
@@ -1587,4 +1587,3 @@ void loop() {
   }
 } 
 ```
-###

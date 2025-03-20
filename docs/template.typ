@@ -17,15 +17,17 @@
   
   show link: it => underline(text(blue, it))
   set text(font: "IBM Plex Sans", lang: "en")
+
+  set heading(numbering: "1.")
   
   show heading.where(level: 1): set text(fill: accent)
   show heading.where(level: 2): set text(fill: luma(20%))
   show heading.where(level: 3): set text(fill: luma(25%))
 
-  show heading.where(level: 1): it => context{
-    if counter(heading).get() != (0, ) {pagebreak()}
-    block(it)
-  }
+  // show heading.where(level: 1): it => context{
+  //   if counter(heading).get() != (0, ) {pagebreak()}
+  //   block(it)
+  // }
 
   // show heading.where(level: 2): it => context{
     
@@ -178,7 +180,7 @@
   heading(level: 1, h-content)
 }
 
-#let fig(path) = figure(image(path))
+#let fig(path, cap: []) = figure(image(path), caption: cap)
 
 // Rounding
 #let r1(num) = calc.round(num, digits: 1)
